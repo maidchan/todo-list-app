@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List App</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>📝 Todo List</h1>
+            <p class="subtitle">Kelola tugas harian Anda</p>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card total">
+                <span class="stat-number">{{ total }}</span>
+                <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-card pending">
+                <span class="stat-number">{{ pending }}</span>
+                <span class="stat-label">Pending</span>
+            </div>
+            <div class="stat-card done">
+                <span class="stat-number">{{ completed }}</span>
+                <span class="stat-label">Selesai</span>
+            </div>
+        </div>
+
+        <!-- Add Form -->
+        <div class="card form-card">
+            <h2>Tambah Todo Baru</h2>
+            <form action="/add" method="post">
+                <div class="form-group">
+                    <input
+                        type="text"
+                        name="title"
+                        placeholder="Judul tugas..."
+                        required
+                        class="input"
+                        autocomplete="off"
+                    >
+                </div>
+                <div class="form-group">
+                    <textarea
+                        name="description"
+                        placeholder="Deskripsi (opsional)..."
+                        class="input textarea"
+                        rows="2"
+                    ></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">➕ Tambah</button>
+            </form>
+        </div>
+
+        <!-- Todo List -->
+        <div class="card">
+            <div class="list-header">
+                <h2>Daftar Tugas</h2>
+                {% if completed > 0 %}
+                <form action="/delete-completed" method="post" style="display:inline">
+                    <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="return confirm('Hapus semua tugas yang selesai?')">
+                        🗑 Hapus Selesai
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+            {% if todos %}
+            <ul class="todo-list">
+                {% for todo in todos %}
+                <li class="todo-item {% if todo.completed %}completed{% endif %}">
+                    <div class="todo-main">
+                        <!-- Toggle -->
+                        <form action="/toggle/{{ todo.id }}" method="post" class="toggle-form">
+                            <button type="submit" class="checkbox {% if todo.completed %}checked{% endif %}" title="Toggle selesai">
+                                {% if todo.completed %}✔{% else %}○{% endif %}
+                            </button>
+                        </form>
+
+                        <!-- Content -->
+                        <div class="todo-content">
+                            <span class="todo-title">{{ todo.title }}</span>
+                            {% if todo.description %}
+                            <span class="todo-desc">{{ todo.description }}</span>
+                            {% endif %}
+                            <span class="todo-date">{{ todo.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="todo-actions">
+                        <a href="/edit/{{ todo.id }}" class="btn btn-edit btn-sm">✏️</a>
+                        <form action="/delete/{{ todo.id }}" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Hapus tugas ini?')">🗑</button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="empty-state">
+                <p>🎉 Belum ada tugas. Tambahkan tugas pertamamu!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
